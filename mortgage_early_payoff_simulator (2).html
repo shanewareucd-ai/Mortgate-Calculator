@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- iOS Native App Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mortgage Payoff">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0284c7">
+    
+    <title>Mortgage Early Payoff Simulator</title>
+
+    <style>
+        /* Modern Native iOS System Typography & Palette */
+        :root {
+            --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-primary: #f2f2f7;
+            --bg-card: #ffffff;
+            --bg-input: #e9e9ee;
+            --text-primary: #000000;
+            --text-secondary: #3c3c4399;
+            --border-color: #d1d1d6;
+            --brand-color: #007aff;
+            --brand-gradient: linear-gradient(135deg, #007aff 0%, #0056b3 100%);
+            --accent-green: #34c759;
+            --accent-green-bg: #e8f8ec;
+            --accent-green-text: #1b8a34;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.08);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --safe-area-top: env(safe-area-inset-top, 0px);
+            --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-primary: #000000;
+                --bg-card: #1c1c1e;
+                --bg-input: #2c2c2e;
+                --text-primary: #ffffff;
+                --text-secondary: #ebebf599;
+                --border-color: #38383a;
+                --brand-color: #0a84ff;
+                --brand-gradient: linear-gradient(135deg, #0a84ff 0%, #0056b3 100%);
+                --accent-green: #30d158;
+                --accent-green-bg: #0b3815;
+                --accent-green-text: #30d158;
+                --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+                --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-stack);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-top: max(var(--safe-area-top), 16px);
+            padding-bottom: max(var(--safe-area-bottom), 24px);
+            padding-left: 16px;
+            padding-right: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 680px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* iOS Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 4px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .app-icon {
+            width: 38px;
+            height: 38px;
+            background: var(--brand-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);
+        }
+
+        h1 {
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--brand-color);
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* Hero Highlight Card */
+        .hero-card {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-badge {
+            align-self: flex-start;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .hero-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 12px;
+        }
+
+        .hero-amount {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        .hero-subtext {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+
+        .hero-stat {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 10px 14px;
+            border-radius: var(--radius-md);
+            text-align: right;
+            min-width: 120px;
+        }
+
+        .hero-stat-val {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .hero-stat-lbl {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+
+        /* iOS Segmented Control Tab Switcher */
+        .segmented-control {
+            background: var(--bg-input);
+            padding: 3px;
+            border-radius: 10px;
+            display: flex;
+            gap: 2px;
+        }
+
+        .segment-btn {
+            flex: 1;
+            padding: 8px 0;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .segment-btn.active {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Main Form Card */
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-prefix, .input-suffix {
+            position: absolute;
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        .input-prefix { left: 12px; }
+        .input-suffix { right: 12px; }
+
+        input[type="number"], select {
+            width: 100%;
+            height: 44px;
+            background: var(--bg-input);
+            border: 1px solid transparent;
+            border-radius: var(--radius-md);
+            padding: 0 12px;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-align: right;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--brand-color);
+            background: var(--bg-card);
+        }
+
+        .has-prefix { padding-left: 28px !important; }
+        .has-suffix { padding-right: 32px !important; }
+
+        /* Range Sliders */
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-input);
+            border-radius: 3px;
+            appearance: none;
+            -webkit-appearance: none;
+            outline: none;
+            touch-action: manipulation;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            border: 0.5px solid rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        /* Preset Chips */
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .chip {
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid transparent;
+            padding: 8px 4px;
+            border-radius: var(--radius-sm);
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .chip:active {
+            background: var(--brand-color);
+            color: white;
+        }
+
+        /* KPI Output Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .kpi-card {
+            background: var(--bg-input);
+            padding: 14px;
+            border-radius: var(--radius-md);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kpi-card.highlight {
+            background: var(--accent-green-bg);
+            border: 1px solid var(--accent-green);
+        }
+
+        .kpi-lbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .kpi-val {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .kpi-card.highlight .kpi-val {
+            color: var(--accent-green-text);
+        }
+
+        /* Table Design */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            max-height: 380px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            text-align: right;
+        }
+
+        th, td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border-color);
+            white-space: nowrap;
+        }
+
+        th {
+            background: var(--bg-input);
+            font-weight: 700;
+            color: var(--text-secondary);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        td:first-child, th:first-child {
+            text-align: left;
+        }
+
+        /* Standalone SVG Chart */
+        .chart-wrapper {
+            width: 100%;
+            height: 220px;
+            position: relative;
+        }
+
+        svg.curve-chart {
+            width: 100%;
+            height: 100%;
+            overflow: visible;
+        }
+
+        /* iPhone Install Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-sheet {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 500px;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: var(--shadow-md);
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        .modal-overlay.active .modal-sheet {
+            transform: translateY(0);
+        }
+
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            font-size: 14px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .step-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--brand-color);
+            color: white;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .btn-full {
+            width: 100%;
+            height: 48px;
+            background: var(--brand-color);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+
+        <!-- iOS App Header -->
+        <header>
+            <div class="header-title">
+                <div class="app-icon">%</div>
+                <div>
+                    <h1>Mortgage Payoff</h1>
+                    <p style="font-size: 11px; color: var(--text-secondary);">Offline Simulator</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn-icon" id="installBtn">
+                    <span>📱 Add App</span>
+                </button>
+                <button class="btn-icon" id="shareBtn">
+                    <span>🔗 Share</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="hero-card">
+            <div class="hero-badge">Interest Savings Target</div>
+            <div class="hero-main">
+                <div>
+                    <div class="hero-amount" id="heroInterestSaved">$374,242</div>
+                    <div class="hero-subtext">Total Lifetime Interest Saved</div>
+                </div>
+                <div class="hero-stat">
+                    <div class="hero-stat-val" id="heroTimeSaved">13.1 Yrs</div>
+                    <div class="hero-stat-lbl">Time Saved</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Segmented Tab Navigation -->
+        <div class="segmented-control">
+            <button class="segment-btn active" onclick="switchTab('inputs')">Inputs & Summary</button>
+            <button class="segment-btn" onclick="switchTab('chart')">Payoff Curve</button>
+            <button class="segment-btn" onclick="switchTab('schedule')">Schedule</button>
+        </div>
+
+        <!-- TAB 1: INPUTS & KPI OUTPUTS -->
+        <div id="tab-inputs" class="tab-content">
+            <div class="card">
+                <div class="card-title">
+                    <span>House & Loan Inputs</span>
+                    <span style="font-size: 12px; color: var(--brand-color); cursor: pointer;" onclick="resetInputs()">Reset</span>
+                </div>
+
+                <!-- Input 1: Home Price -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label>Home Purchase Price</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="homePrice" value="600000" step="5000" class="has-prefix" oninput="syncAndCalc('homePrice')">
+                    </div>
+                    <input type="range" id="homePriceSlider" min="100000" max="2000000" step="10000" value="600000" oninput="syncAndCalc('homePriceSlider')">
+                </div>
+
+                <!-- Input 2: Down Payment -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label>Down Payment</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="downPayment" value="0" step="1000" class="has-prefix" oninput="syncAndCalc('downPayment')">
+                    </div>
+                    <input type="range" id="downPaymentSlider" min="0" max="500000" step="5000" value="0" oninput="syncAndCalc('downPaymentSlider')">
+                </div>
+
+                <!-- Input 3: Interest Rate -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label>Annual Interest Rate</label>
+                    </div>
+                    <div class="input-wrapper">
+                        <input type="number" id="interestRate" value="6.5" step="0.125" class="has-suffix" oninput="syncAndCalc('interestRate')">
+                        <span class="input-suffix">%</span>
+                    </div>
+                    <input type="range" id="interestRateSlider" min="2.0" max="12.0" step="0.125" value="6.5" oninput="syncAndCalc('interestRateSlider')">
+                </div>
+
+                <!-- Input 4: Loan Term -->
+                <div class="form-group">
+                    <div class="form-label-row">
+                        <label>Loan Term (Years)</label>
+                    </div>
+                    <select id="loanTerm" onchange="syncAndCalc()">
+                        <option value="10">10 Years</option>
+                        <option value="15">15 Years</option>
+                        <option value="20">20 Years</option>
+                        <option value="25">25 Years</option>
+                        <option value="30" selected>30 Years</option>
+                    </select>
+                </div>
+
+                <!-- Input 5: Extra Principal -->
+                <div class="form-group" style="background: var(--bg-input); padding: 12px; border-radius: var(--radius-md);">
+                    <div class="form-label-row" style="color: var(--accent-green-text);">
+                        <label>⚡ Extra Monthly Principal</label>
+                    </div>
+                    <div class="input-wrapper" style="margin-top: 6px;">
+                        <span class="input-prefix">$</span>
+                        <input type="number" id="extraPayment" value="500" step="25" class="has-prefix" oninput="syncAndCalc('extraPayment')">
+                    </div>
+                    <input type="range" id="extraPaymentSlider" min="0" max="3000" step="25" value="500" style="margin-top: 8px;" oninput="syncAndCalc('extraPaymentSlider')">
+                    
+                    <div class="preset-grid">
+                        <div class="chip" onclick="applyExtra(250)">+$250</div>
+                        <div class="chip" onclick="applyExtra(500)">+$500</div>
+                        <div class="chip" onclick="applyExtra(750)">+$750</div>
+                        <div class="chip" onclick="applyExtra(1000)">+$1,000</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- KPI Results Card -->
+            <div class="card" style="margin-top: 16px;">
+                <div class="card-title">Exact Calculated Outputs</div>
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Base Loan Amount</div>
+                        <div class="kpi-val" id="outBaseLoan">$600,000</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Required Monthly P&I</div>
+                        <div class="kpi-val" id="outMonthlyPmt">$3,792</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Standard Interest</div>
+                        <div class="kpi-val" id="outStandardInterest">$765,267</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Accelerated Term (Mos)</div>
+                        <div class="kpi-val" id="outAccelMonths">203.2 mos</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Accelerated Term (Yrs)</div>
+                        <div class="kpi-val" id="outAccelYears">16.9 yrs</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-lbl">Accelerated Interest</div>
+                        <div class="kpi-val" id="outAccelInterest">$391,025</div>
+                    </div>
+                    <div class="kpi-card highlight" style="grid-column: span 2;">
+                        <div class="kpi-lbl">TOTAL INTEREST SAVED</div>
+                        <div class="kpi-val" id="outTotalSaved">$374,242</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: STANDALONE OFFLINE SVG CHART -->
+        <div id="tab-chart" class="tab-content hidden">
+            <div class="card">
+                <div class="card-title">Balance Trajectory Curve</div>
+                <p style="font-size: 12px; color: var(--text-secondary);">Standalone SVG curve comparing standard vs extra payment payoff trajectory.</p>
+                
+                <div class="chart-wrapper">
+                    <svg id="svgChart" class="curve-chart" viewBox="0 0 300 150" preserveAspectRatio="none">
+                        <!-- Rendered dynamically -->
+                    </svg>
+                </div>
+
+                <div style="display: flex; justify-content: center; gap: 16px; font-size: 12px; font-weight: 600;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 12px; height: 3px; background: #8e8e93; display: inline-block;"></span> Standard
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="width: 12px; height: 3px; background: #34c759; display: inline-block;"></span> Accelerated
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: AMORTIZATION SCHEDULE TABLE -->
+        <div id="tab-schedule" class="tab-content hidden">
+            <div class="card">
+                <div class="card-title">
+                    <span>Amortization Schedule</span>
+                    <select id="scheduleViewType" onchange="calculateAndRender()" style="width: auto; height: 32px; font-size: 12px; padding: 0 8px;">
+                        <option value="annual">Annual View</option>
+                        <option value="monthly">Monthly View</option>
+                    </select>
+                </div>
+
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Period</th>
+                                <th>Standard Bal</th>
+                                <th>Accel Bal</th>
+                                <th>Interest Saved</th>
+                            </tr>
+                        </thead>
+                        <tbody id="scheduleTableBody">
+                            <!-- Rendered dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- iPhone Add to Home Screen Modal -->
+    <div class="modal-overlay" id="installModal">
+        <div class="modal-sheet">
+            <h3 style="font-size: 18px; font-weight: 800;">Install App on iPhone</h3>
+            <p style="font-size: 13px; color: var(--text-secondary);">Save this app to your iPhone home screen to use it offline anytime with a single tap:</p>
+
+            <div class="step-list">
+                <div class="step-item">
+                    <div class="step-num">1</div>
+                    <div>Tap the <strong>Share</strong> button at the bottom of Safari (the box with an up arrow).</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">2</div>
+                    <div>Scroll down the share sheet and tap <strong>Add to Home Screen</strong>.</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-num">3</div>
+                    <div>Tap <strong>Add</strong> in the top-right corner.</div>
+                </div>
+            </div>
+
+            <button class="btn-full" onclick="closeInstallModal()">Got it</button>
+        </div>
+    </div>
+
+    <script>
+        // Tab Switcher Logic
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.segment-btn').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+            event.target.classList.add('active');
+
+            if (tabName === 'chart') {
+                renderSVGChart();
+            }
+        }
+
+        // Synchronize numeric inputs and range sliders
+        function syncAndCalc(sourceId) {
+            if (sourceId === 'homePrice') document.getElementById('homePriceSlider').value = document.getElementById('homePrice').value;
+            if (sourceId === 'homePriceSlider') document.getElementById('homePrice').value = document.getElementById('homePriceSlider').value;
+
+            if (sourceId === 'downPayment') document.getElementById('downPaymentSlider').value = document.getElementById('downPayment').value;
+            if (sourceId === 'downPaymentSlider') document.getElementById('downPayment').value = document.getElementById('downPaymentSlider').value;
+
+            if (sourceId === 'interestRate') document.getElementById('interestRateSlider').value = document.getElementById('interestRate').value;
+            if (sourceId === 'interestRateSlider') document.getElementById('interestRate').value = document.getElementById('interestRateSlider').value;
+
+            if (sourceId === 'extraPayment') document.getElementById('extraPaymentSlider').value = document.getElementById('extraPayment').value;
+            if (sourceId === 'extraPaymentSlider') document.getElementById('extraPayment').value = document.getElementById('extraPaymentSlider').value;
+
+            calculateAndRender();
+        }
+
+        function applyExtra(val) {
+            document.getElementById('extraPayment').value = val;
+            document.getElementById('extraPaymentSlider').value = val;
+            calculateAndRender();
+        }
+
+        function resetInputs() {
+            document.getElementById('homePrice').value = 600000;
+            document.getElementById('homePriceSlider').value = 600000;
+            document.getElementById('downPayment').value = 0;
+            document.getElementById('downPaymentSlider').value = 0;
+            document.getElementById('interestRate').value = 6.5;
+            document.getElementById('interestRateSlider').value = 6.5;
+            document.getElementById('loanTerm').value = 30;
+            document.getElementById('extraPayment').value = 500;
+            document.getElementById('extraPaymentSlider').value = 500;
+            calculateAndRender();
+        }
+
+        // Global calculation state
+        let lastCalcResult = null;
+
+        // Core Mathematical Calculations (PMT, NPER, Amortization)
+        function calculateMortgage() {
+            const price = parseFloat(document.getElementById('homePrice').value) || 0;
+            const down = parseFloat(document.getElementById('downPayment').value) || 0;
+            const loanAmount = Math.max(0, price - down);
+            const rate = (parseFloat(document.getElementById('interestRate').value) || 0) / 100 / 12;
+            const termYears = parseInt(document.getElementById('loanTerm').value) || 30;
+            const totalMonths = termYears * 12;
+            const extraPmt = parseFloat(document.getElementById('extraPayment').value) || 0;
+
+            // PMT Formula: [P * r * (1+r)^n] / [(1+r)^n - 1]
+            let pmt = 0;
+            if (rate > 0) {
+                pmt = (loanAmount * rate * Math.pow(1 + rate, totalMonths)) / (Math.pow(1 + rate, totalMonths) - 1);
+            } else {
+                pmt = loanAmount / totalMonths;
+            }
+
+            const totalMonthlyPmt = pmt + extraPmt;
+            const standardInterest = (pmt * totalMonths) - loanAmount;
+
+            // NPER Formula for Accelerated Term
+            let accelMonths = totalMonths;
+            if (extraPmt > 0 && rate > 0) {
+                // NPER = -ln(1 - (P * r) / PMT) / ln(1 + r)
+                const num = Math.log(totalMonthlyPmt / (totalMonthlyPmt - loanAmount * rate));
+                const den = Math.log(1 + rate);
+                accelMonths = num / den;
+            }
+
+            const accelYears = accelMonths / 12;
+            const accelInterest = (accelMonths * totalMonthlyPmt) - loanAmount;
+            const totalSaved = Math.max(0, standardInterest - accelInterest);
+            const timeSavedYears = Math.max(0, termYears - accelYears);
+
+            // Month-by-month schedule construction
+            let stdBal = loanAmount;
+            let accelBal = loanAmount;
+            let stdCumInt = 0;
+            let accelCumInt = 0;
+            const schedule = [];
+
+            for (let m = 1; m <= totalMonths; m++) {
+                const stdInt = stdBal * rate;
+                const stdPrin = Math.min(stdBal, pmt - stdInt);
+                stdBal = Math.max(0, stdBal - stdPrin);
+                stdCumInt += stdInt;
+
+                let accelInt = 0;
+                let accelPrin = 0;
+
+                if (accelBal > 0) {
+                    accelInt = accelBal * rate;
+                    const pmtActual = Math.min(accelBal + accelInt, totalMonthlyPmt);
+                    accelPrin = pmtActual - accelInt;
+                    accelBal = Math.max(0, accelBal - accelPrin);
+                    accelCumInt += accelInt;
+                }
+
+                schedule.push({
+                    month: m,
+                    year: Math.ceil(m / 12),
+                    stdBal,
+                    accelBal,
+                    savedSoFar: Math.max(0, stdCumInt - accelCumInt)
+                });
+            }
+
+            lastCalcResult = {
+                loanAmount,
+                pmt,
+                totalMonthlyPmt,
+                standardInterest,
+                accelMonths,
+                accelYears,
+                accelInterest,
+                totalSaved,
+                timeSavedYears,
+                schedule
+            };
+
+            return lastCalcResult;
+        }
+
+        function calculateAndRender() {
+            updateURLHash();
+            const res = calculateMortgage();
+
+            const fmt = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+            const fmtDec = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+
+            // Render Hero Summary
+            document.getElementById('heroInterestSaved').textContent = fmt(res.totalSaved);
+            document.getElementById('heroTimeSaved').textContent = `${res.timeSavedYears.toFixed(1)} Yrs`;
+
+            // Render KPI Grid
+            document.getElementById('outBaseLoan').textContent = fmt(res.loanAmount);
+            document.getElementById('outMonthlyPmt').textContent = fmtDec(res.pmt);
+            document.getElementById('outStandardInterest').textContent = fmt(res.standardInterest);
+            document.getElementById('outAccelMonths').textContent = `${res.accelMonths.toFixed(1)} mos`;
+            document.getElementById('outAccelYears').textContent = `${res.accelYears.toFixed(1)} yrs`;
+            document.getElementById('outAccelInterest').textContent = fmt(res.accelInterest);
+            document.getElementById('outTotalSaved').textContent = fmt(res.totalSaved);
+
+            renderAmortizationTable(res);
+            renderSVGChart();
+        }
+
+        // Render Pure SVG Curve Chart (Zero External CDN Libraries - Offline Guaranteed)
+        function renderSVGChart() {
+            if (!lastCalcResult) return;
+            const svg = document.getElementById('svgChart');
+            const data = lastCalcResult.schedule;
+            
+            const width = 300;
+            const height = 150;
+            const maxBal = lastCalcResult.loanAmount;
+            const totalMonths = data.length;
+
+            let stdPoints = "";
+            let accelPoints = "";
+
+            data.forEach((d, i) => {
+                const x = (d.month / totalMonths) * width;
+                const yStd = height - ((d.stdBal / maxBal) * (height - 20)) - 10;
+                const yAccel = height - ((d.accelBal / maxBal) * (height - 20)) - 10;
+
+                stdPoints += `${x.toFixed(1)},${yStd.toFixed(1)} `;
+                accelPoints += `${x.toFixed(1)},${yAccel.toFixed(1)} `;
+            });
+
+            svg.innerHTML = `
+                <polyline fill="none" stroke="#8e8e93" stroke-width="2" stroke-dasharray="4" points="${stdPoints}" />
+                <polyline fill="none" stroke="#34c759" stroke-width="3" points="${accelPoints}" />
+            `;
+        }
+
+        function renderAmortizationTable(res) {
+            const tbody = document.getElementById('scheduleTableBody');
+            const viewType = document.getElementById('scheduleViewType').value;
+            tbody.innerHTML = '';
+
+            const fmt = (v) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v);
+
+            const filteredData = viewType === 'annual' 
+                ? res.schedule.filter(d => d.month % 12 === 0)
+                : res.schedule;
+
+            filteredData.forEach(row => {
+                const tr = document.createElement('tr');
+                const label = viewType === 'annual' ? `Yr ${row.year}` : `Mo ${row.month}`;
+                tr.innerHTML = `
+                    <td>${label}</td>
+                    <td>${fmt(row.stdBal)}</td>
+                    <td style="color: var(--accent-green-text); font-weight: bold;">${fmt(row.accelBal)}</td>
+                    <td style="color: var(--accent-green-text);">+${fmt(row.savedSoFar)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Live URL Hash Sharing
+        function updateURLHash() {
+            const price = document.getElementById('homePrice').value;
+            const down = document.getElementById('downPayment').value;
+            const rate = document.getElementById('interestRate').value;
+            const term = document.getElementById('loanTerm').value;
+            const extra = document.getElementById('extraPayment').value;
+
+            history.replaceState(null, '', `#price=${price}&down=${down}&rate=${rate}&term=${term}&extra=${extra}`);
+        }
+
+        function loadURLHash() {
+            const hash = window.location.hash.substring(1);
+            if (!hash) return;
+
+            const params = new URLSearchParams(hash);
+            if (params.has('price')) {
+                document.getElementById('homePrice').value = params.get('price');
+                document.getElementById('homePriceSlider').value = params.get('price');
+            }
+            if (params.has('down')) {
+                document.getElementById('downPayment').value = params.get('down');
+                document.getElementById('downPaymentSlider').value = params.get('down');
+            }
+            if (params.has('rate')) {
+                document.getElementById('interestRate').value = params.get('rate');
+                document.getElementById('interestRateSlider').value = params.get('rate');
+            }
+            if (params.has('term')) {
+                document.getElementById('loanTerm').value = params.get('term');
+            }
+            if (params.has('extra')) {
+                document.getElementById('extraPayment').value = params.get('extra');
+                document.getElementById('extraPaymentSlider').value = params.get('extra');
+            }
+        }
+
+        // Native iPhone Share API Trigger
+        document.getElementById('shareBtn').addEventListener('click', async () => {
+            updateURLHash();
+            const shareUrl = window.location.href;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: 'Mortgage Payoff Simulator',
+                        text: `Check out this early mortgage payoff scenario!`,
+                        url: shareUrl
+                    });
+                } catch (e) {
+                    console.log('Share canceled');
+                }
+            } else {
+                navigator.clipboard.writeText(shareUrl);
+                alert('Scenario link copied to clipboard!');
+            }
+        });
+
+        // Install Modal Control
+        document.getElementById('installBtn').addEventListener('click', () => {
+            document.getElementById('installModal').classList.add('active');
+        });
+
+        function closeInstallModal() {
+            document.getElementById('installModal').classList.remove('active');
+        }
+
+        // App Initialization
+        window.onload = function() {
+            loadURLHash();
+            calculateAndRender();
+        };
+    </script>
+</body>
+</html>
